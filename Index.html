@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora PRO - Aceitera Principito</title>
+
+<style>
+:root {
+  --bg-light: #f4f5f7;
+  --bg-dark: #111111;
+  --card-light: #ffffff;
+  --card-dark: #1f1f1f;
+  --primary: #e64a19;
+  --primary-soft: #ffe4d9;
+  --accent: #ffb74d;
+  --text-main: #222222;
+  --text-soft: #666666;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg-light);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+body.dark { background: var(--bg-dark); color: #f5f5f5; }
+
+.app-wrapper {
+  width: 100%;
+  max-width: 900px;
+  padding: 18px 12px 32px;
+}
+
+.card {
+  background: var(--card-light);
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.14);
+  padding: 18px 18px 22px;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.12s ease;
+}
+
+body.dark .card {
+  background: var(--card-dark);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.7);
+}
+
+.card:hover { transform: translateY(-1px); }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+body.dark .app-header {
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 20%, #ffccbc, #e64a19);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logo-circle img {
+  max-width: 95%;
+  max-height: 95%;
+  display: block;
+}
+
+.header-texts h1 {
+  font-size: 1.1rem;
+  margin: 0;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.header-texts p {
+  margin: 3px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+body.dark .header-texts p { color: #bbbbbb; }
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.mode-toggle {
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.18);
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+body.dark .mode-toggle {
+  background: #222;
+  border-color: rgba(255,255,255,0.26);
+  color: #f5f5f5;
+}
+
+.mode-toggle span { font-size: 0.85rem; }
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+  gap: 18px;
+  margin-top: 6px;
+}
+
+@media (max-width: 780px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+.subtle {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
+label {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+input, select {
+  width: 100%;
+  padding: 8px 9px;
+  margin-top: 3px;
+  border-radius: 10px;
+  border: 1px solid #d0d4da;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  background: #fafbfc;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(230, 74, 25, 0.2);
+  background: #ffffff;
+}
+
+body.dark input, body.dark select {
+  border-color: #424242;
+  background: #252525;
+  color: #f3f3f3;
+}
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+button {
+  border-radius: 999px;
+  border: none;
+  padding: 9px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-main {
+  background: var(--primary);
+  color: #ffffff;
+  flex: 1;
+}
+
+.btn-secondary {
+  background: #edf0f7;
+  color: #333;
+}
+
+body.dark .btn-secondary {
+  background: #303030;
+  color: #f5f5f5;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.18);
+  color: var(--text-soft);
+}
+
+body.dark .btn-ghost {
+  border-color: rgba(255,255,255,0.26);
+  color: #e0e0e0;
+}
+
+.result-card {
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 12px 12px 10px;
+  border: 1px dashed rgba(0,0,0,0.08);
+  margin-top: 4px;
+}
+
+body.dark .result-card {
+  background: #171717;
+  border-color: rgba(255,255,255,0.12);
+}
+
+.result-card h3 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .result-grid { grid-template-columns: 1fr; }
+}
+
+.kpi {
+  padding: 7px 8px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+body.dark .kpi {
+  background: #222222;
+  border-color: rgba(255,255,255,0.12);
+}
+
+.kpi-label {
+  font-size: 0.72rem;
+  color: var(--text-soft);
+}
+
+.kpi-value {
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.kpi-tag {
+  font-size: 0.7rem;
+  color: #2e7d32;
+  margin-top: 2px;
+}
+
+body.dark .kpi-tag { color: #81c784; }
+
+.chart-wrapper {
+  margin-top: 12px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(0,0,0,0.08);
+}
+
+body.dark .chart-wrapper {
+  border-top-color: rgba(255,255,255,0.12);
+}
+
+#qr-container { margin-top: 14px; text-align: center; }
+
+.footer-note {
+  margin-top: 10px;
+  font-size: 0.72rem;
+  color: var(--text-soft);
+}
+
+body.dark .footer-note { color: #aaaaaa; }
+</style>
+</head>
+
+<body>
+<div class="app-wrapper">
+  <div class="card">
+
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-circle">
+          <img src="logo_principito.png" alt="Aceitera Principito">
+        </div>
+        <div class="header-texts">
+          <h1>Aceitera Principito</h1>
+          <p>Calculadora PRO de ahorro para clientes gastronómicos</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="mode-toggle" onclick="toggleDark()">
+          <span id="mode-label">Modo oscuro: OFF</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <div>
+        <div class="section-title">Datos del cliente</div>
+
+        <label>Nombre del cliente</label>
+        <input id="cliente_nombre" type="text" placeholder="Ej: Santacalma, Tolomeo, etc.">
+
+        <label>Moneda</label>
+        <select id="moneda">
+          <option value="Gs">Guaraníes (Gs)</option>
+          <option value="AR$">Pesos Argentinos (AR$)</option>
+          <option value="USD">Dólares (USD)</option>
+        </select>
+
+        <div class="section-title" style="margin-top:14px;">Consumo de aceite</div>
+
+        <label>Precio otras marcas (por bidón)</label>
+        <input id="precio_otras" type="text">
+
+        <label>Días de uso otras marcas</label>
+        <select id="dias_otras">
+          <option value="">Elegí días...</option>
+          <option value="1">1 día</option><option value="2">2 días</option>
+          <option value="3">3 días</option><option value="4">4 días</option>
+          <option value="5">5 días</option><option value="6">6 días</option>
+          <option value="7">7 días</option><option value="8">8 días</option>
+          <option value="9">9 días</option><option value="10">10 días</option>
+        </select>
+
+        <label>Precio Principito (por bidón)</label>
+        <input id="precio_principito" type="text">
+
+        <label>Días de uso Principito</label>
+        <select id="dias_principito">
+          <option value="">Elegí días...</option>
+          <option value="1">1 día</option><option value="2">2 días</option>
+          <option value="3">3 días</option><option value="4">4 días</option>
+          <option value="5">5 días</option><option value="6">6 días</option>
+          <option value="7">7 días</option><option value="8">8 días</option>
+          <option value="9">9 días</option><option value="10">10 días</option>
+        </select>
+
+        <label>Bidones usados por semana</label>
+        <input id="bidones_semana" type="text">
+
+        <div class="section-title" style="margin-top:14px;">Producto de venta</div>
+
+        <label>Tipo de producto</label>
+        <select id="tipo_producto" onchange="onTipoProductoChange()">
+          <option value="hamburguesas">Hamburguesas</option>
+          <option value="sándwiches de milanesa">Sándwiches de milanesa</option>
+          <option value="lomos">Lomos</option>
+          <option value="otro">Otro...</option>
+        </select>
+
+        <input id="tipo_otro" type="text" placeholder="Especificá el producto" style="display:none; margin-top:6px;">
+
+        <label>Costo unitario del producto</label>
+        <input id="costo_producto" type="text">
+
+        <label>Precio de venta del producto</label>
+        <input id="venta_producto" type="text">
+
+        <div class="controls-row">
+          <button class="btn-main" onclick="calcular()">Calcular</button>
+          <button class="btn-secondary" onclick="generarPDF()">PDF para cliente</button>
+          <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+        </div>
+
+        <div class="controls-row">
+          <button class="btn-ghost" onclick="guardarPreset()">Guardar cliente</button>
+          <select id="preset_select" style="flex:1; min-width:0;">
+            <option value="">Cargar cliente guardado...</option>
+          </select>
+          <button class="btn-ghost" onclick="cargarPreset()">Cargar</button>
+        </div>
+
+        <div class="controls-row">
+          <button class="btn-ghost" onclick="generarQR()">Generar QR (WhatsApp)</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Resultado para el cliente</div>
+        <p class="subtle">
+          Mostrá el ahorro, las unidades extra y la venta adicional, incluyendo el 2º mes reinvirtiendo el resultado.
+        </p>
+
+        <div id="resultado" class="result-card" style="display:none;"></div>
+
+        <div class="chart-wrapper">
+          <canvas id="chart"></canvas>
+        </div>
+
+        <div id="qr-container"></div>
+
+        <p class="footer-note">
+          La calculadora es estimativa. Adaptá precios, consumos y días de uso a la realidad de cada cocina.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Librerías externas -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+// ================================
+// Helpers numéricos seguros
+// ================================
+function parseNumberSafe(value) {
+  if (value === null || value === undefined) return null;
+  var v = String(value);
+  v = v.replace(",", ".");         // coma -> punto
+  v = v.replace(/[^0-9.]/g, "");   // limpio basuras
+  if (v === "") return null;
+  var num = Number(v);
+  return isFinite(num) ? num : null;
+}
+
+function formatMoney(value, currency) {
+  if (!isFinite(value)) return "-";
+  var decimals = (currency === "Gs") ? 0 : 2;
+
+  if (typeof Intl === "undefined" || !Intl.NumberFormat) {
+    return value.toFixed(decimals);
+  }
+  return new Intl.NumberFormat("es-AR", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  }).format(value);
+}
+
+function formatInteger(value) {
+  if (!isFinite(value)) return "-";
+  if (typeof Intl === "undefined" || !Intl.NumberFormat) {
+    return String(Math.round(value));
+  }
+  return new Intl.NumberFormat("es-AR", {
+    maximumFractionDigits: 0
+  }).format(Math.round(value));
+}
+
+// ================================
+// Modo oscuro + tipo producto
+// ================================
+function toggleDark() {
+  var body = document.body;
+  if (body.classList.contains("dark")) {
+    body.classList.remove("dark");
+    localStorage.setItem("principito_dark", "0");
+    document.getElementById("mode-label").textContent = "Modo oscuro: OFF";
+  } else {
+    body.classList.add("dark");
+    localStorage.setItem("principito_dark", "1");
+    document.getElementById("mode-label").textContent = "Modo oscuro: ON";
+  }
+}
+
+function onTipoProductoChange() {
+  var sel = document.getElementById("tipo_producto");
+  var otro = document.getElementById("tipo_otro");
+  if (sel.value === "otro") {
+    otro.style.display = "block";
+  } else {
+    otro.style.display = "none";
+    otro.value = "";
+  }
+}
+
+// ================================
+// Cálculo principal
+// ================================
+var chart = null;
+var ultimoResumen = null;
+
+function calcular() {
+  var moneda = document.getElementById("moneda").value;
+  var tipoSel = document.getElementById("tipo_producto").value;
+  var tipoOtro = document.getElementById("tipo_otro").value;
+  var tipo = (tipoSel === "otro") ? (tipoOtro || "producto") : tipoSel;
+  var cliente = document.getElementById("cliente_nombre").value || "(sin nombre)";
+
+  var pO = parseNumberSafe(document.getElementById("precio_otras").value);
+  var dO = parseNumberSafe(document.getElementById("dias_otras").value);
+  var pP = parseNumberSafe(document.getElementById("precio_principito").value);
+  var dP = parseNumberSafe(document.getElementById("dias_principito").value);
+  var b  = parseNumberSafe(document.getElementById("bidones_semana").value);
+  var cProd = parseNumberSafe(document.getElementById("costo_producto").value);
+  var vProd = parseNumberSafe(document.getElementById("venta_producto").value);
+
+  if (!pO || !dO || !pP || !dP || !b || !cProd || !vProd) {
+    alert("Completá todos los campos numéricos y los días de uso.");
+    return;
+  }
+
+  var mensual_otras = (pO / dO) * 30 * b;
+  var mensual_principito = (pP / dP) * 30 * b;
+  var ahorro = mensual_otras - mensual_principito;
+
+  var unidades1 = ahorro / cProd;
+  var venta_total1 = unidades1 * vProd;
+  var margen_unit = vProd - cProd;
+  var ganancia1 = unidades1 * margen_unit;
+
+  var fondo_mes2 = ahorro + ganancia1;
+  var unidades2 = fondo_mes2 / cProd;
+  var venta_total2 = unidades2 * vProd;
+
+  ultimoResumen = {
+    cliente: cliente,
+    moneda: moneda,
+    tipo: tipo,
+    mensual_otras: mensual_otras,
+    mensual_principito: mensual_principito,
+    ahorro: ahorro,
+    unidades1: unidades1,
+    venta_total1: venta_total1,
+    fondo_mes2: fondo_mes2,
+    unidades2: unidades2,
+    venta_total2: venta_total2
+  };
+
+  var res = document.getElementById("resultado");
+  res.style.display = "block";
+
+  var html = "";
+  html += "<h3>Resumen mensual - " + cliente + "</h3>";
+  html += '<div class="result-grid">';
+
+  html += '<div class="kpi">';
+  html += '<div class="kpi-label">Costo mensual otras marcas</div>';
+  html += '<div class="kpi-value">' + moneda + " " + formatMoney(mensual_otras, moneda) + "</div>";
+  html += "</div>";
+
+  html += '<div class="kpi">';
+  html += '<div class="kpi-label">Costo mensual Principito</div>';
+  html += '<div class="kpi-value">' + moneda + " " + formatMoney(mensual_principito, moneda) + "</div>";
+  html += '<div class="kpi-tag">Ahorro: ' + moneda + " " + formatMoney(ahorro, moneda) + "</div>";
+  html += "</div>";
+
+  html += '<div class="kpi">';
+  html += '<div class="kpi-label">1er mes - unidades de ' + tipo + "</div>";
+  html += '<div class="kpi-value">' + formatInteger(unidades1) + "</div>";
+  html += '<div class="kpi-tag">Venta: ' + moneda + " " + formatMoney(venta_total1, moneda) + "</div>";
+  html += "</div>";
+
+  html += '<div class="kpi">';
+  html += '<div class="kpi-label">2º mes reinvirtiendo ahorro+ganancia</div>';
+  html += '<div class="kpi-value">' + formatInteger(unidades2) + " " + tipo + "</div>";
+  html += '<div class="kpi-tag">Venta: ' + moneda + " " + formatMoney(venta_total2, moneda) + "</div>";
+  html += "</div>";
+
+  html += "</div>";
+
+  res.innerHTML = html;
+
+  actualizarGrafico(mensual_otras, mensual_principito, moneda);
+}
+
+// ================================
+// Gráfico
+// ================================
+function actualizarGrafico(otras, princ, moneda) {
+  var canvas = document.getElementById("chart");
+  if (!canvas || typeof Chart === "undefined") {
+    return;
+  }
+  var ctx = canvas.getContext("2d");
+  if (chart) {
+    chart.destroy();
+  }
+  chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Otras marcas", "Principito"],
+      datasets: [{
+        data: [otras, princ],
+        backgroundColor: ["#e64a19", "#4caf50"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+}
+
+// ================================
+// Limpiar
+// ================================
+function limpiar() {
+  var ids = [
+    "cliente_nombre","precio_otras","dias_otras",
+    "precio_principito","dias_principito","bidones_semana",
+    "costo_producto","venta_producto","tipo_otro"
+  ];
+  for (var i = 0; i < ids.length; i++) {
+    document.getElementById(ids[i]).value = "";
+  }
+  document.getElementById("moneda").value = "Gs";
+  document.getElementById("tipo_producto").value = "hamburguesas";
+  onTipoProductoChange();
+  document.getElementById("resultado").style.display = "none";
+  document.getElementById("qr-container").innerHTML = "";
+  if (chart) { chart.destroy(); chart = null; }
+  ultimoResumen = null;
+}
+
+// ================================
+// QR WhatsApp
+// ================================
+function generarQR() {
+  if (!ultimoResumen) {
+    alert("Primero calculá para generar el QR.");
+    return;
+  }
+  if (typeof QRCode === "undefined") {
+    alert("No se pudo cargar la librería de QR.");
+    return;
+  }
+
+  var r = ultimoResumen;
+  var texto = "";
+  texto += "Cliente: " + r.cliente + "\n";
+  texto += "Ahorro mensual: " + r.moneda + " " + formatMoney(r.ahorro, r.moneda) + "\n";
+  texto += "1er mes (" + r.tipo + "): " + formatInteger(r.unidades1) +
+           " (venta: " + r.moneda + " " + formatMoney(r.venta_total1, r.moneda) + ")\n";
+  texto += "2º mes (" + r.tipo + "): " + formatInteger(r.unidades2) +
+           " (venta: " + r.moneda + " " + formatMoney(r.venta_total2, r.moneda) + ")";
+
+  var urlTexto = encodeURIComponent(texto);
+  var dataUrl = "https://wa.me/?text=" + urlTexto;
+
+  var qDiv = document.getElementById("qr-container");
+  qDiv.innerHTML = "<p style='font-size:0.8rem; margin-bottom:6px;'>Escaneá para enviarte el resumen por WhatsApp:</p>";
+
+  var qrBox = document.createElement("div");
+  qDiv.appendChild(qrBox);
+
+  new QRCode(qrBox, {
+    text: dataUrl,
+    width: 170,
+    height: 170
+  });
+}
+
+// ================================
+// PDF
+// ================================
+function generarPDF() {
+  if (!ultimoResumen) {
+    alert("Primero calculá para generar el PDF.");
+    return;
+  }
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("No se pudo cargar la librería de PDF.");
+    return;
+  }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF();
+  var r = ultimoResumen;
+
+  doc.setFontSize(14);
+  doc.text("Aceitera Principito - Resumen de ahorro", 10, 15);
+
+  doc.setFontSize(11);
+  doc.text("Cliente: " + r.cliente, 10, 25);
+  doc.text("Moneda: " + r.moneda, 10, 32);
+
+  doc.text("Costo mensual otras marcas: " + r.moneda + " " + formatMoney(r.mensual_otras, r.moneda), 10, 45);
+  doc.text("Costo mensual Principito: " + r.moneda + " " + formatMoney(r.mensual_principito, r.moneda), 10, 52);
+  doc.text("Ahorro mensual: " + r.moneda + " " + formatMoney(r.ahorro, r.moneda), 10, 59);
+
+  doc.text("1er mes - unidades de " + r.tipo + ": " + formatInteger(r.unidades1), 10, 72);
+  doc.text("Venta 1er mes: " + r.moneda + " " + formatMoney(r.venta_total1, r.moneda), 10, 79);
+
+  doc.text("2º mes (reinversión):", 10, 92);
+  doc.text("Unidades: " + formatInteger(r.unidades2), 10, 99);
+  doc.text("Venta 2º mes: " + r.moneda + " " + formatMoney(r.venta_total2, r.moneda), 10, 106);
+
+  doc.setFontSize(9);
+  doc.text("Simulación orientativa. Ajustar a los valores reales de cada cocina.", 10, 122);
+
+  var nombre = r.cliente.replace(/[^a-zA-Z0-9]/g,"_") || "cliente";
+  doc.save("Ahorro_Principito_" + nombre + ".pdf");
+}
+
+// ================================
+// Presets
+// ================================
+function cargarListaPresets() {
+  var select = document.getElementById("preset_select");
+  select.innerHTML = '<option value="">Cargar cliente guardado...</option>';
+  var data = localStorage.getItem("principito_presets");
+  if (!data) return;
+  var presets = JSON.parse(data);
+  for (var nombre in presets) {
+    if (presets.hasOwnProperty(nombre)) {
+      var opt = document.createElement("option");
+      opt.value = nombre;
+      opt.textContent = nombre;
+      select.appendChild(opt);
+    }
+  }
+}
+
+function guardarPreset() {
+  var nombre = document.getElementById("cliente_nombre").value.trim();
+  if (!nombre) {
+    alert("Poné un nombre de cliente para guardarlo.");
+    return;
+  }
+  var data = localStorage.getItem("principito_presets");
+  var presets = data ? JSON.parse(data) : {};
+
+  presets[nombre] = {
+    moneda: document.getElementById("moneda").value,
+    precio_otras: document.getElementById("precio_otras").value,
+    dias_otras: document.getElementById("dias_otras").value,
+    precio_principito: document.getElementById("precio_principito").value,
+    dias_principito: document.getElementById("dias_principito").value,
+    bidones_semana: document.getElementById("bidones_semana").value,
+    tipo_producto: document.getElementById("tipo_producto").value,
+    tipo_otro: document.getElementById("tipo_otro").value,
+    costo_producto: document.getElementById("costo_producto").value,
+    venta_producto: document.getElementById("venta_producto").value
+  };
+
+  localStorage.setItem("principito_presets", JSON.stringify(presets));
+  cargarListaPresets();
+  alert("Cliente guardado correctamente.");
+}
+
+function cargarPreset() {
+  var select = document.getElementById("preset_select");
+  var nombre = select.value;
+  if (!nombre) {
+    alert("Elegí un cliente de la lista.");
+    return;
+  }
+  var data = localStorage.getItem("principito_presets");
+  if (!data) return;
+  var presets = JSON.parse(data);
+  var p = presets[nombre];
+  if (!p) return;
+
+  document.getElementById("cliente_nombre").value = nombre;
+  document.getElementById("moneda").value = p.moneda || "Gs";
+  document.getElementById("precio_otras").value = p.precio_otras || "";
+  document.getElementById("dias_otras").value = p.dias_otras || "";
+  document.getElementById("precio_principito").value = p.precio_principito || "";
+  document.getElementById("dias_principito").value = p.dias_principito || "";
+  document.getElementById("bidones_semana").value = p.bidones_semana || "";
+  document.getElementById("tipo_producto").value = p.tipo_producto || "hamburguesas";
+  document.getElementById("tipo_otro").value = p.tipo_otro || "";
+  document.getElementById("costo_producto").value = p.costo_producto || "";
+  document.getElementById("venta_producto").value = p.venta_producto || "";
+
+  onTipoProductoChange();
+  alert("Datos del cliente cargados. Ahora podés recalcular.");
+}
+
+// ================================
+// Inicialización
+// ================================
+window.addEventListener("DOMContentLoaded", function () {
+  var dark = localStorage.getItem("principito_dark") === "1";
+  if (dark) {
+    document.body.classList.add("dark");
+  }
+  var label = document.getElementById("mode-label");
+  if (label) {
+    label.textContent = "Modo oscuro: " + (dark ? "ON" : "OFF");
+  }
+
+  cargarListaPresets();
+
+  var inputs = document.querySelectorAll("input[type='text']");
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].setAttribute("inputmode", "decimal");
+  }
+});
+</script>
+
+</body>
+</html>
